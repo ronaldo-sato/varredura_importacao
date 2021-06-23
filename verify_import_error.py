@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     # Leitura Tabela Arquivos Importados.
 
-    print('Leitura dos arquivos importados. (Aguarde..)')
+    print('\nLeitura dos arquivos importados. (Aguarde..)\n')
 
     df = load_raw_data(date_ini, date_end, schema=schema)
 
@@ -132,12 +132,21 @@ if __name__ == "__main__":
 
             rname = os.path.join(path2save, rname)
 
+    else:
+
+        if not os.path.exists('output/'):
+
+            os.mkdir('output/')
+
+        rname = os.path.join('output/', rname)
+
     with open(rname, 'w+') as frel:
 
         header = (
             'Relatório de verificação de falha de importação'
             f' de arquivos presentes em "{folder}".\n'
-            f'\nVarredura para cada unidade do caminho "{path}".\n')
+            f'\nVarredura para cada unidade do caminho "{path}".\n'
+            f'\n Período (intervalo aberto): ]{date_ini}, {date_end}[.\n')
 
         frel.write(header)
 
@@ -197,6 +206,14 @@ if __name__ == "__main__":
 
                                 os.rename(fname, destination)
 
+                    else:
+
+                        msg = '\nNão foi encontrado nenhum arquivo.'
+                        
+                        print(msg)
+
+                        frel.write(msg)
+
     if path2save:
 
         if os.path.exists(path2save):
@@ -207,10 +224,10 @@ if __name__ == "__main__":
 
             print(
                 f'O caminho "{path2save}" não existe.\n'
-                f'\nRelatório ({rname}) salvo localmente em'
+                f'\nRelatório "{rname}" salvo localmente em'
                 f' "{os.getcwd()}".')
 
     else:
 
         print(
-            f'Relatório ({rname}) salvo localmente em "{os.getcwd()}".')
+            f'Relatório "{rname}" salvo localmente em "{os.getcwd()}".')

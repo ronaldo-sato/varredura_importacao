@@ -222,12 +222,15 @@ if __name__ == "__main__":
 
         else:
 
+            _dir = os.path.join(os.getcwd(), 'output/').replace('\\', '/')
+
             print(
                 f'O caminho "{path2save}" não existe.\n'
-                f'\nRelatório "{rname}" salvo localmente em'
-                f' "{os.getcwd()}".')
+                f'\nRelatório "{rname}" salvo localmente em "{_dir}".')
 
     else:
 
+        _dir = os.path.join(os.getcwd(), 'output/').replace('\\', '/')
+
         print(
-            f'Relatório "{rname}" salvo localmente em "{os.getcwd()}".')
+            f'Relatório "{rname}" salvo localmente em "{_dir}".')

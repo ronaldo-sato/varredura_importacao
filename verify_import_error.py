@@ -19,7 +19,7 @@ sys.path.insert(0, os.getcwd())
 from __aux__ import decrypt, path, folder, access, schema
 
 
-def list_files(path, interval, folder='/HIST/ERRO', pattern='*_gz'):
+def list_files(interval, path, folder='HIST/ERRO', pattern='*_gz'):
     """
     Listagem de todos arquivos compactados (pattern) dentro do
     intervalo (interval), na pasta (folder) do caminho (path).
@@ -102,8 +102,6 @@ if __name__ == "__main__":
     date_end = _input['date_end']
     path2save = _input['path2save']
 
-    entries = os.scandir(path)
-
     # Leitura Tabela Arquivos Importados.
 
     print('\nLeitura dos arquivos importados. (Aguarde..)\n')
@@ -140,13 +138,17 @@ if __name__ == "__main__":
 
         rname = os.path.join('output/', rname)
 
+    # Varrendo o path.
+
+    entries = os.scandir(path)
+
     with open(rname, 'w+') as frel:
 
         header = (
             'Relatório de verificação de falha de importação'
             f' de arquivos presentes em "{folder}".\n'
             f'\nVarredura para cada unidade do caminho "{path}".\n'
-            f'\n Período (intervalo aberto): ]{date_ini}, {date_end}[.\n')
+            f'\nPeríodo (intervalo aberto): ]{date_ini}, {date_end}[.\n')
 
         frel.write(header)
 
@@ -167,12 +169,12 @@ if __name__ == "__main__":
                 if os.path.exists(
                         os.path.join(entry.path, folder)):
 
+                    frel.write(f'\n\n{entry.name}\n')
+                    
                     fnames = list_files(
-                        entry.path, folder, [date_ini, date_end])
+                        [date_ini, date_end], entry.path, folder)
 
                     if fnames:
-
-                        frel.write(f'\n\n{entry.name}\n')
 
                         print('\n\tVerificando arquivos:\n')
 
@@ -208,11 +210,9 @@ if __name__ == "__main__":
 
                     else:
 
-                        msg = '\nNão foi encontrado nenhum arquivo.'
+                        print('Não foi encontrado nenhum arquivo.')
                         
-                        print(msg)
-
-                        frel.write(msg)
+                        frel.write('Não foi encontrado nenhum arquivo.\n')
 
     if path2save:
 

@@ -14,9 +14,13 @@ from dateutil.parser import parse
 import pandas as pd
 
 import sys
-sys.path.insert(0, os.getcwd())
+sys.path.insert(1, '\\'.join(os.getcwd().split('\\')[:-1]))
 
-from __aux__ import decrypt, path, folder, access, schema
+from __path__ import prod as path
+from __path__ import erro as folder
+from __func__ import decrypt
+from __access__ import prod as access
+from __access__ import schema
 
 
 def list_files(interval, path, folder='HIST/ERRO', pattern='*_gz'):
@@ -61,7 +65,7 @@ def load_raw_data(start, end, schema=''):
     import sqlalchemy as db
 
     engine = db.create_engine(
-        f'oracle://{decrypt(access)}',
+        f'{decrypt(access)}',
         max_identifier_length=128)
 
     connection = engine.connect()
@@ -100,6 +104,7 @@ if __name__ == "__main__":
 
     date_ini = _input['date_ini']
     date_end = _input['date_end']
+    rname = _input['report_name']
     path2save = _input['path2save']
 
     # Leitura Tabela Arquivos Importados.
@@ -109,20 +114,21 @@ if __name__ == "__main__":
     df = load_raw_data(date_ini, date_end, schema=schema)
 
     # Nome do relatório.
+    if not rname:
 
-    if (parse(date_ini, dayfirst=True).date()
-        == parse(date_end, dayfirst=True).date()):
+        if (parse(date_ini, dayfirst=True).date()
+            == parse(date_end, dayfirst=True).date()):
 
-        rname = (
-            'verificacao_importacao_'
-            f'{parse(date_ini, dayfirst=True).strftime(r"%d%m%Y")}.txt')
+            rname = (
+                'verificacao_importacao_'
+                f'{parse(date_ini, dayfirst=True).strftime(r"%d%m%Y")}.txt')
 
-    else:
+        else:
 
-        rname = (
-            'verificacao_importacao_'
-            f'{parse(date_ini, dayfirst=True).strftime(r"%d%m%Y")}'
-            f'-{parse(date_end, dayfirst=True).strftime(r"%d%m%Y")}.txt')
+            rname = (
+                'verificacao_importacao_'
+                f'{parse(date_ini, dayfirst=True).strftime(r"%d%m%Y")}'
+                f'-{parse(date_end, dayfirst=True).strftime(r"%d%m%Y")}.txt')
 
     if path2save:
 
@@ -199,20 +205,35 @@ if __name__ == "__main__":
 
                             else:
 
-                                print(f' -> Movendo para /HIST\n')
+                                try:
 
-                                frel.write(
-                                    f'\n{fname.replace(path, "")}'
-                                    ' -> '
-                                    f'{destination.replace(path, "")}')
+                                    os.rename(fname, destination)
 
-                                os.rename(fname, destination)
+                                except FileExistsError:
+
+                                    print(f' -> Já existe em /HIST\n')
+
+                                    frel.write(
+                                        f'\n{fname.replace(path, "")}'
+                                        ' -> '
+                                        'já existe em'
+                                        f' {destination.replace(path, "")}')
+
+                                else:
+
+                                    print(f' -> Movendo para /HIST\n')
+
+                                    frel.write(
+                                        f'\n{fname.replace(path, "")}'
+                                        ' -> '
+                                        f'{destination.replace(path, "")}')
 
                     else:
 
                         print('Não foi encontrado nenhum arquivo.')
                         
-                        frel.write('Não foi encontrado nenhum arquivo.\n')
+                        frel.write(
+                            '\nNão foi encontrado nenhum arquivo.\n')
 
     if path2save:
 
